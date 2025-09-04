@@ -5,10 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Plus, Search, Download, Users, TrendingUp, Wallet, Receipt } from "lucide-react";
+import { LogOut, Plus, Search, Download, Users, TrendingUp, Wallet, Receipt, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import EmployeeFormModal from "@/components/EmployeeFormModal";
 import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
+import PayrollSubmitModal from "@/components/PayrollSubmitModal";
 
 export interface Employee {
   id: string;
@@ -47,6 +48,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isPayrollModalOpen, setIsPayrollModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
 
@@ -243,6 +245,10 @@ const Dashboard = () => {
                   <Download className="h-4 w-4 mr-2" />
                   Exportar
                 </Button>
+                <Button variant="outline" onClick={() => setIsPayrollModalOpen(true)}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Enviar Folha
+                </Button>
               </div>
             </div>
             <div className="relative mt-4">
@@ -334,6 +340,12 @@ const Dashboard = () => {
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
         employeeName={employeeToDelete?.name || ""}
+      />
+      
+      <PayrollSubmitModal
+        isOpen={isPayrollModalOpen}
+        onClose={() => setIsPayrollModalOpen(false)}
+        employees={filteredEmployees}
       />
     </div>
   );
