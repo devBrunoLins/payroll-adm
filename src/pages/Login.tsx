@@ -113,12 +113,7 @@ const Login = () => {
               type="button"
               variant="ghost"
               className="w-full"
-              onClick={() => {
-                toast({
-                  title: "Recuperação de senha",
-                  description: "Funcionalidade em desenvolvimento. Entre em contato com o administrador.",
-                });
-              }}
+              onClick={() => navigate("/recover-password")}
             >
               Recuperar senha
             </Button>
