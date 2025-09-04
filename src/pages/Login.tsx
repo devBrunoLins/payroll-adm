@@ -98,8 +98,30 @@ const Login = () => {
               {isLoading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Para implementar autenticação real, conecte o Supabase</p>
+          <div className="mt-6 space-y-4">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Esqueceu sua senha?
+                </span>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => {
+                toast({
+                  title: "Recuperação de senha",
+                  description: "Funcionalidade em desenvolvimento. Entre em contato com o administrador.",
+                });
+              }}
+            >
+              Recuperar senha
+            </Button>
           </div>
         </CardContent>
       </Card>
