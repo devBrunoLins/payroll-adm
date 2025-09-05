@@ -7,12 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Send, Calendar } from "lucide-react";
-import { Employee } from "@/pages/Dashboard";
+import { IEmployee } from "@/types/employee";
 
 interface PayrollSubmitModalProps {
   isOpen: boolean;
   onClose: () => void;
-  employees: Employee[];
+  employees: IEmployee[];
 }
 
 const PayrollSubmitModal = ({ isOpen, onClose, employees }: PayrollSubmitModalProps) => {
@@ -68,15 +68,15 @@ const PayrollSubmitModal = ({ isOpen, onClose, employees }: PayrollSubmitModalPr
       },
       generatedAt: new Date().toISOString(),
       summary: {
-        totalEmployees: employees.length,
-        totalSalaries: employees.reduce((sum, emp) => sum + emp.salary, 0),
-        totalDiscounts: employees.reduce((sum, emp) => sum + emp.discount, 0),
-        totalCommissions: employees.reduce((sum, emp) => sum + emp.commission, 0),
-        totalNet: employees.reduce((sum, emp) => sum + (emp.salary - emp.discount + emp.commission), 0)
+        totalEmployees: employees?.length || 0,
+        totalSalaries: employees?.reduce((sum, emp) => sum + emp.salary, 0) || 0,
+        totalDiscounts: employees?.reduce((sum, emp) => sum + emp.discount, 0) || 0,
+        totalCommissions: employees?.reduce((sum, emp) => sum + emp.commission, 0) || 0,
+        totalNet: employees?.reduce((sum, emp) => sum + (emp.salary - emp.discount + emp.commission), 0) || 0
       },
       employees: employees.map(emp => ({
         id: emp.id,
-        name: emp.name,
+        name: emp.full_name,
         salary: emp.salary,
         discount: emp.discount,
         commission: emp.commission,
@@ -190,11 +190,11 @@ const PayrollSubmitModal = ({ isOpen, onClose, employees }: PayrollSubmitModalPr
           <div className="rounded-lg border bg-muted/30 p-3">
             <p className="text-sm font-medium mb-1">Resumo da Folha</p>
             <div className="text-xs text-muted-foreground space-y-1">
-              <p>• {employees.length} funcionários</p>
+              <p>• {employees?.length} funcionários</p>
               <p>• Total líquido: {new Intl.NumberFormat("pt-BR", {
                 style: "currency",
                 currency: "BRL",
-              }).format(employees.reduce((sum, emp) => sum + (emp.salary - emp.discount + emp.commission), 0))}</p>
+              }).format(employees?.reduce((sum, emp) => sum + (emp.salary - emp.discount + emp.commission), 0))}</p>
             </div>
           </div>
         </div>

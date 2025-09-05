@@ -3,35 +3,45 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Employee } from "@/pages/Dashboard";
+import { IEmployee } from "@/types/employee";
 
 interface EmployeeFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (employee: Employee) => void;
-  employee: Employee | null;
+  onSave: (employee: IEmployee) => void;
+  employee: IEmployee | null;
+}
+
+const employeeDefault: IEmployee = {
+  id: "",
+  full_name: "",
+  salary: 0,
+  discount: 0,
+  commission: 0,
+  cpf: "",
+  company: {
+    id: "",
+    name: "",
+    slug: "",
+    cnpj: "",
+    created_at: new Date(),
+    updated_at: new Date(),
+    deleted_at: new Date(),
+  },
+  company_id: "",
+  created_at: new Date(),
+  updated_at: new Date(),
+  deleted_at: new Date(),
 }
 
 const EmployeeFormModal = ({ isOpen, onClose, onSave, employee }: EmployeeFormModalProps) => {
-  const [formData, setFormData] = useState<Employee>({
-    id: "",
-    name: "",
-    salary: 0,
-    discount: 0,
-    commission: 0,
-  });
+  const [formData, setFormData] = useState<IEmployee>(employeeDefault);
 
   useEffect(() => {
     if (employee) {
       setFormData(employee);
     } else {
-      setFormData({
-        id: "",
-        name: "",
-        salary: 0,
-        discount: 0,
-        commission: 0,
-      });
+      setFormData(employeeDefault);
     }
   }, [employee]);
 
@@ -40,10 +50,10 @@ const EmployeeFormModal = ({ isOpen, onClose, onSave, employee }: EmployeeFormMo
     onSave(formData);
   };
 
-  const handleChange = (field: keyof Employee, value: string | number) => {
+  const handleChange = (field: keyof IEmployee, value: string | number) => {
     setFormData(prev => ({
       ...prev,
-      [field]: field === "name" ? value : Number(value),
+      [field]: value,
     }));
   };
 
@@ -68,8 +78,8 @@ const EmployeeFormModal = ({ isOpen, onClose, onSave, employee }: EmployeeFormMo
               </Label>
               <Input
                 id="name"
-                value={formData.name}
-                onChange={(e) => handleChange("name", e.target.value)}
+                value={formData.full_name}
+                onChange={(e) => handleChange("full_name", e.target.value)}
                 className="col-span-3"
                 required
               />
@@ -90,6 +100,34 @@ const EmployeeFormModal = ({ isOpen, onClose, onSave, employee }: EmployeeFormMo
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cpf" className="text-right">
+                CPF
+              </Label>
+              <Input
+                id="cpf"
+                type="text"
+                value={formData.cpf || ""}
+                onChange={(e) => handleChange("cpf", e.target.value)}
+                className="col-span-3"
+                min="0"
+                step="1"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="admission_date" className="text-right">
+                Data de Admissão
+              </Label>
+              <Input
+                id="admission_date"
+                type="date"
+                value={formData.admission_date || ""}
+                onChange={(e) => handleChange("admission_date", e.target.value)}
+                className="col-span-3"
+                required
+              />
+            </div>
+            {/* <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="discount" className="text-right">
                 Desconto (R$)
               </Label>
@@ -103,8 +141,8 @@ const EmployeeFormModal = ({ isOpen, onClose, onSave, employee }: EmployeeFormMo
                 step="0.01"
                 required
               />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
+            </div> */}
+            {/* <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="commission" className="text-right">
                 Comissão (R$)
               </Label>
@@ -118,7 +156,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSave, employee }: EmployeeFormMo
                 step="0.01"
                 required
               />
-            </div>
+            </div> */}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>

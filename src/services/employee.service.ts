@@ -1,5 +1,4 @@
 import api from "@/api";
-import { ISignInSchema } from "@/entities/SignIn";
 import { IEmployee } from "@/types/employee";
 
 class EmployeeService {
@@ -7,6 +6,11 @@ class EmployeeService {
         const { data } = await api.get<IEmployee[]>('employee');
         return data;
     };
+
+    create = async (payload: IEmployee): Promise<IEmployee> => {
+        const { data } = await api.post<IEmployee>('employee', payload);
+        return data;
+    }
 }
 
 

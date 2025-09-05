@@ -10,17 +10,10 @@ import { useToast } from "@/hooks/use-toast";
 import EmployeeFormModal from "@/components/EmployeeFormModal";
 import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
 import PayrollSubmitModal from "@/components/PayrollSubmitModal";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { employeeService } from "@/services/employee.service";
+import { IEmployee } from "@/types/employee";
 import handleGenericErrorResponse from "@/common/utils/handleGenericErrorResponse";
-
-export interface Employee {
-  id: string;
-  name: string;
-  salary: number;
-  discount: number;
-  commission: number;
-}
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -52,19 +45,20 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPayrollModalOpen, setIsPayrollModalOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<IEmployee | null>(null);
+  const [employeeToDelete, setEmployeeToDelete] = useState<IEmployee | null>(null);
+  const queryClient = useQueryClient()
 
   const {
     data: employees,
-    isFetching,
-    refetch,
   } = useQuery({
     queryKey: ['employees'],
     queryFn: () => employeeService.getAll(),
-    onError: (err: unknown) => {
-      return handleGenericErrorResponse(err);
-    }
+    enabled: true,
+  });
+
+  const { mutateAsync: create } = useMutation({
+    mutationFn: (payload: IEmployee) => employeeService.create(payload),
   });
 
   useEffect(() => {
@@ -89,48 +83,49 @@ const Dashboard = () => {
     setIsModalOpen(true);
   };
 
-  const handleEditEmployee = (employee: Employee) => {
+  const handleEditEmployee = (employee: IEmployee) => {
     setSelectedEmployee(employee);
     setIsModalOpen(true);
   };
 
-  const handleDeleteEmployee = (employee: Employee) => {
+  const handleDeleteEmployee = (employee: IEmployee) => {
     setEmployeeToDelete(employee);
     setIsDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
     if (employeeToDelete) {
-      setEmployees(employees.filter(emp => emp.id !== employeeToDelete.id));
+      // setEmployees(employees.filter(emp => emp.id !== employeeToDelete.id));
       toast({
         title: "Funcionário removido",
-        description: `${employeeToDelete.name} foi removido com sucesso.`,
+        description: `${employeeToDelete.full_name} foi removido com sucesso.`,
       });
       setIsDeleteDialogOpen(false);
       setEmployeeToDelete(null);
     }
   };
 
-  const handleSaveEmployee = (employee: Employee) => {
+  const handleSaveEmployee = (employee: IEmployee) => {
     if (selectedEmployee) {
       // Editar funcionário existente
-      setEmployees(employees.map(emp => 
-        emp.id === employee.id ? employee : emp
-      ));
-      toast({
-        title: "Funcionário atualizado",
-        description: `${employee.name} foi atualizado com sucesso.`,
-      });
+      // setEmployees(employees.map(emp => 
+      //   emp.id === employee.id ? employee : emp
+      // ));
     } else {
       // Adicionar novo funcionário
-      const newEmployee = {
-        ...employee,
-        id: Date.now().toString(),
-      };
-      setEmployees([...employees, newEmployee]);
-      toast({
-        title: "Funcionário adicionado",
-        description: `${employee.name} foi adicionado com sucesso.`,
+
+      create(employee, {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: ['employees'],
+            refetchType: 'active'
+          })
+          toast({
+            title: "Funcionário criado",
+            description: `${employee.full_name} foi incluído com sucesso.`,
+          });
+        },
+        onError: handleGenericErrorResponse
       });
     }
     setIsModalOpen(false);
@@ -142,7 +137,7 @@ const Dashboard = () => {
       headers.join(","),
       ...filteredEmployees.map(emp => 
         [
-          emp.name,
+          emp.full_name,
           emp.salary,
           emp.discount,
           emp.commission,
@@ -167,13 +162,13 @@ const Dashboard = () => {
     });
   };
 
-  const filteredEmployees = employees.filter(employee =>
-    employee.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredEmployees = employees?.filter(employee =>
+    employee.full_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalSalaries = filteredEmployees.reduce((sum, emp) => sum + emp.salary, 0);
-  const totalDiscounts = filteredEmployees.reduce((sum, emp) => sum + emp.discount, 0);
-  const totalCommissions = filteredEmployees.reduce((sum, emp) => sum + emp.commission, 0);
+  const totalSalaries = filteredEmployees?.reduce((sum, emp) => sum + emp.salary, 0);
+  const totalDiscounts = filteredEmployees?.reduce((sum, emp) => sum + emp.discount, 0);
+  const totalCommissions = filteredEmployees?.reduce((sum, emp) => sum + emp.commission, 0);
   const totalNet = totalSalaries - totalDiscounts + totalCommissions;
 
   const formatCurrency = (value: number) => {
@@ -211,7 +206,7 @@ const Dashboard = () => {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{filteredEmployees.length}</div>
+              <div className="text-2xl font-bold">{filteredEmployees?.length}</div>
             </CardContent>
           </Card>
 
@@ -294,29 +289,29 @@ const Dashboard = () => {
                 </TableHeader>
 
                 <TableBody>
-                  {filteredEmployees.length === 0 ? (
+                  {filteredEmployees?.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center text-muted-foreground">
                         Nenhum funcionário encontrado
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredEmployees.map((employee) => (
+                    filteredEmployees?.map((employee) => (
                       <TableRow key={employee.id}>
-                        <TableCell className="font-medium">{employee.name}</TableCell>
+                        <TableCell className="font-medium">{employee.full_name}</TableCell>
                         <TableCell>{formatCurrency(employee.salary)}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-destructive">
-                            {formatCurrency(employee.discount)}
+                            0
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-secondary">
-                            {formatCurrency(employee.commission)}
+                            0
                           </Badge>
                         </TableCell>
                         <TableCell className="font-semibold text-primary">
-                          {formatCurrency(employee.salary - employee.discount + employee.commission)}
+                          {formatCurrency(+employee.salary)}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
@@ -358,7 +353,7 @@ const Dashboard = () => {
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
-        employeeName={employeeToDelete?.name || ""}
+        employeeName={employeeToDelete?.full_name || ""}
       />
       
       <PayrollSubmitModal
