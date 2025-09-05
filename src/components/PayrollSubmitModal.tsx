@@ -48,14 +48,14 @@ const PayrollSubmitModal = ({ isOpen, onClose, employees }: PayrollSubmitModalPr
       return;
     }
 
-    if (!webhookUrl) {
-      toast({
-        title: "Erro",
-        description: "Por favor, insira a URL do webhook.",
-        variant: "destructive",
-      });
-      return;
-    }
+    // if (!webhookUrl) {
+    //   toast({
+    //     title: "Erro",
+    //     description: "Por favor, insira a URL do webhook.",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
 
     setIsSubmitting(true);
 
@@ -162,7 +162,7 @@ const PayrollSubmitModal = ({ isOpen, onClose, employees }: PayrollSubmitModalPr
             </div>
           </div>
 
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="webhook">URL do Webhook (Zapier, Make, etc.)</Label>
             <Input
               id="webhook"
@@ -174,7 +174,7 @@ const PayrollSubmitModal = ({ isOpen, onClose, employees }: PayrollSubmitModalPr
             <p className="text-xs text-muted-foreground">
               Configure um webhook em sua ferramenta de automação para receber os dados.
             </p>
-          </div>
+          </div> */}
 
           <div className="space-y-2">
             <Label htmlFor="notes">Observações (opcional)</Label>
