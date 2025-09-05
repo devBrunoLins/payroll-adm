@@ -54,7 +54,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Verificar autenticação
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
+    const isAuthenticated = localStorage.getItem("@Payroll:Token");
     if (!isAuthenticated) {
       navigate("/");
     }

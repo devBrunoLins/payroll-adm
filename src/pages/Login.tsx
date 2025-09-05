@@ -6,6 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Lock, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { signInService } from "@/services/signIn.service";
+import { ISignInSchema } from "@/entities/SignIn";
+import handleGenericErrorResponse from "@/common/utils/handleGenericErrorResponse";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,29 +18,49 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const { mutateAsync: signIn } = useMutation({
+    mutationFn: (payload: ISignInSchema) => signInService.signIn(payload),
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulação de login - substitua com autenticação real via Supabase
-    setTimeout(() => {
-      if (email && password) {
+    signIn({ email, password }, {
+      onSuccess: ({ access_token }) => {
+        setIsLoading(false);
         toast({
           title: "Login realizado com sucesso!",
-          description: "Bem-vindo ao sistema de gestão de funcionários.",
+          description: "Bem-vindo ao sistema de gestão de funcionários."
         });
-        // Armazenar temporariamente o estado de login
-        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("@Payroll:Token", access_token);
         navigate("/dashboard");
-      } else {
-        toast({
-          title: "Erro no login",
-          description: "Por favor, preencha todos os campos.",
-          variant: "destructive",
-        });
+      },
+      onError: (err: unknown) => {
+        setIsLoading(false);
+        return handleGenericErrorResponse(err);
       }
-      setIsLoading(false);
-    }, 1000);
+    });
+    
+
+    // Simulação de login - substitua com autenticação real via Supabase
+    // setTimeout(() => {
+    //   if (email && password) {
+    //     toast({
+    //       title: "Login realizado com sucesso!",
+    //       description: "Bem-vindo ao sistema de gestão de funcionários.",
+    //     });
+    //     // Armazenar temporariamente o estado de login
+    //     localStorage.setItem("isAuthenticated", "true");
+    //     navigate("/dashboard");
+    //   } else {
+    //     toast({
+    //       title: "Erro no login",
+    //       description: "Por favor, preencha todos os campos.",
+    //       variant: "destructive",
+    //     });
+    //   }
+    //   setIsLoading(false);
+    // }, 1000);
   };
 
   return (
