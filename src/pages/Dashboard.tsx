@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Plus, Search, Download, Users, TrendingUp, Wallet, Receipt, FileText } from "lucide-react";
+import { LogOut, Plus, Search, Download, Users, Wallet, ClipboardCheck, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import EmployeeFormModal from "@/components/EmployeeFormModal";
 import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
@@ -14,6 +14,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { employeeService } from "@/services/employee.service";
 import { IEmployee } from "@/types/employee";
 import handleGenericErrorResponse from "@/common/utils/handleGenericErrorResponse";
+import type { PayrollEntry } from "@/components/PayrollEntryModal";
+import PayrollEntryModal from "@/components/PayrollEntryModal";
+import PayrollSummaryModal from "@/components/PayrollSummaryModal";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -44,9 +47,18 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isPayrollModalOpen, setIsPayrollModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<IEmployee | null>(null);
   const [employeeToDelete, setEmployeeToDelete] = useState<IEmployee | null>(null);
+  const [selectedEmployeeForPayroll, setSelectedEmployeeForPayroll] = useState<IEmployee | null>(null);
+  const [payrollEntries, setPayrollEntries] = useState<PayrollEntry[]>([]);
+  const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+  const [isPayrollEntryModalOpen, setIsPayrollEntryModalOpen] = useState(false);
+  const now = new Date();
+  const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+  const currentMonth = monthNames[now.getMonth()];
+  const currentYear = now.getFullYear();
+
   const queryClient = useQueryClient()
 
   const {
@@ -187,6 +199,19 @@ const Dashboard = () => {
     });
   };
 
+  const handleFillPayroll = (employee: IEmployee) => {
+    setSelectedEmployeeForPayroll(employee);
+    setIsPayrollEntryModalOpen(true);
+  };
+
+  const handleSavePayrollEntry = (entry: PayrollEntry) => {
+    // Remove existing entry for this employee if any
+    const filteredEntries = payrollEntries.filter(e => e.employeeId !== entry.employeeId);
+    setPayrollEntries([...filteredEntries, entry]);
+    setIsPayrollEntryModalOpen(false);
+    setSelectedEmployeeForPayroll(null);
+  };
+
   const filteredEmployees = employees?.filter(employee =>
     employee.full_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -283,9 +308,9 @@ const Dashboard = () => {
                   <Download className="h-4 w-4 mr-2" />
                   Exportar
                 </Button>
-                <Button variant="outline" onClick={() => setIsPayrollModalOpen(true)}>
+                <Button variant="outline" onClick={() => setIsSummaryModalOpen(true)}>
                   <FileText className="h-4 w-4 mr-2" />
-                  Enviar Folha
+                  Enviar Folha ({payrollEntries.length})
                 </Button>
               </div>
             </div>
@@ -341,6 +366,14 @@ const Dashboard = () => {
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
                             <Button
+                              variant="gradient"
+                              size="sm"
+                              onClick={() => handleFillPayroll(employee)}
+                            >
+                              <ClipboardCheck className="h-4 w-4 mr-1" />
+                              Preencher Folha
+                            </Button>
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleEditEmployee(employee)}
@@ -380,12 +413,34 @@ const Dashboard = () => {
         onConfirm={confirmDelete}
         employeeName={employeeToDelete?.full_name || ""}
       />
+
+      {selectedEmployeeForPayroll && (
+        <PayrollEntryModal
+          isOpen={isPayrollEntryModalOpen}
+          onClose={() => {
+            setIsPayrollEntryModalOpen(false);
+            setSelectedEmployeeForPayroll(null);
+          }}
+          onSave={handleSavePayrollEntry}
+          employee={selectedEmployeeForPayroll}
+          currentMonth={currentMonth}
+          currentYear={currentYear}
+        />
+      )}
+
+      <PayrollSummaryModal
+        isOpen={isSummaryModalOpen}
+        onClose={() => setIsSummaryModalOpen(false)}
+        entries={payrollEntries}
+        currentMonth={currentMonth}
+        currentYear={currentYear}
+      />
       
-      <PayrollSubmitModal
+      {/* <PayrollSubmitModal
         isOpen={isPayrollModalOpen}
         onClose={() => setIsPayrollModalOpen(false)}
         employees={filteredEmployees}
-      />
+      /> */}
     </div>
   );
 };
