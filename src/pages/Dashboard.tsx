@@ -10,6 +10,9 @@ import { useToast } from "@/hooks/use-toast";
 import EmployeeFormModal from "@/components/EmployeeFormModal";
 import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
 import PayrollSubmitModal from "@/components/PayrollSubmitModal";
+import { useQuery } from "@tanstack/react-query";
+import { employeeService } from "@/services/employee.service";
+import handleGenericErrorResponse from "@/common/utils/handleGenericErrorResponse";
 
 export interface Employee {
   id: string;
@@ -22,35 +25,47 @@ export interface Employee {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [employees, setEmployees] = useState<Employee[]>([
-    {
-      id: "1",
-      name: "João Silva",
-      salary: 3500,
-      discount: 200,
-      commission: 500,
-    },
-    {
-      id: "2",
-      name: "Maria Santos",
-      salary: 4200,
-      discount: 150,
-      commission: 800,
-    },
-    {
-      id: "3",
-      name: "Pedro Oliveira",
-      salary: 2800,
-      discount: 100,
-      commission: 350,
-    },
-  ]);
+  // const [employees, setEmployees] = useState<Employee[]>([
+  //   {
+  //     id: "1",
+  //     name: "João Silva",
+  //     salary: 3500,
+  //     discount: 200,
+  //     commission: 500,
+  //   },
+  //   {
+  //     id: "2",
+  //     name: "Maria Santos",
+  //     salary: 4200,
+  //     discount: 150,
+  //     commission: 800,
+  //   },
+  //   {
+  //     id: "3",
+  //     name: "Pedro Oliveira",
+  //     salary: 2800,
+  //     discount: 100,
+  //     commission: 350,
+  //   },
+  // ]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPayrollModalOpen, setIsPayrollModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+
+  const {
+    data: employees,
+    isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => employeeService.getAll(),
+    onError: (err: unknown) => {
+      return handleGenericErrorResponse(err);
+    }
+  });
 
   useEffect(() => {
     // Verificar autenticação
@@ -199,6 +214,7 @@ const Dashboard = () => {
               <div className="text-2xl font-bold">{filteredEmployees.length}</div>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Salários</CardTitle>
@@ -208,6 +224,7 @@ const Dashboard = () => {
               <div className="text-2xl font-bold">{formatCurrency(totalSalaries)}</div>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Comissões</CardTitle>
@@ -217,6 +234,7 @@ const Dashboard = () => {
               <div className="text-2xl font-bold text-secondary">{formatCurrency(totalCommissions)}</div>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Folha Líquida</CardTitle>
@@ -274,6 +292,7 @@ const Dashboard = () => {
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
+
                 <TableBody>
                   {filteredEmployees.length === 0 ? (
                     <TableRow>
