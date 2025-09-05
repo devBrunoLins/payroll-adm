@@ -61,6 +61,14 @@ const Dashboard = () => {
     mutationFn: (payload: IEmployee) => employeeService.create(payload),
   });
 
+  const { mutateAsync: edit } = useMutation({
+    mutationFn: (payload: IEmployee) => employeeService.edit(payload),
+  });
+
+  const { mutateAsync: deleteEmployee } = useMutation({
+    mutationFn: (payload: IEmployee) => employeeService.delete(payload),
+  });
+
   useEffect(() => {
     // Verificar autenticação
     const isAuthenticated = localStorage.getItem("@Payroll:Token");
@@ -95,10 +103,18 @@ const Dashboard = () => {
 
   const confirmDelete = () => {
     if (employeeToDelete) {
-      // setEmployees(employees.filter(emp => emp.id !== employeeToDelete.id));
-      toast({
-        title: "Funcionário removido",
-        description: `${employeeToDelete.full_name} foi removido com sucesso.`,
+      deleteEmployee(employeeToDelete, {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: ['employees'],
+            refetchType: 'active'
+          })
+          toast({
+            title: "Funcionário demitido",
+            description: `${employeeToDelete.full_name} foi demitido com sucesso.`,
+          });
+        },
+        onError: handleGenericErrorResponse
       });
       setIsDeleteDialogOpen(false);
       setEmployeeToDelete(null);
@@ -107,10 +123,19 @@ const Dashboard = () => {
 
   const handleSaveEmployee = (employee: IEmployee) => {
     if (selectedEmployee) {
-      // Editar funcionário existente
-      // setEmployees(employees.map(emp => 
-      //   emp.id === employee.id ? employee : emp
-      // ));
+      edit(employee, {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: ['employees'],
+            refetchType: 'active'
+          })
+          toast({
+            title: "Funcionário atualizado",
+            description: `${employee.full_name} foi atualizado com sucesso.`,
+          });
+        },
+        onError: handleGenericErrorResponse
+      });
     } else {
       // Adicionar novo funcionário
 
@@ -327,7 +352,7 @@ const Dashboard = () => {
                               size="sm"
                               onClick={() => handleDeleteEmployee(employee)}
                             >
-                              Remover
+                              Demitir
                             </Button>
                           </div>
                         </TableCell>

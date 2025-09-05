@@ -23,14 +23,14 @@ const DeleteConfirmDialog = ({ isOpen, onClose, onConfirm, employeeName }: Delet
         <AlertDialogHeader>
           <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
           <AlertDialogDescription>
-            Tem certeza que deseja remover o funcionário <strong>{employeeName}</strong>?
+            Tem certeza que deseja demitir o funcionário <strong>{employeeName}</strong>?
             Esta ação não pode ser desfeita.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-            Remover
+            Demitir
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

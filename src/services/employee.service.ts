@@ -11,6 +11,16 @@ class EmployeeService {
         const { data } = await api.post<IEmployee>('employee', payload);
         return data;
     }
+
+    edit = async (payload: IEmployee): Promise<IEmployee> => {
+        const { data } = await api.put<IEmployee>(`employee/${payload.id}`, payload);
+        return data;
+    }
+
+    delete = async (payload: IEmployee): Promise<string> => {
+        const { data } = await api.delete<string>(`employee/${payload.id}`);
+        return data;
+    }
 }
 
 
