@@ -53,6 +53,7 @@ const PayrollEntryModal = ({ isOpen, onClose, onSave, employee, currentMonth, cu
     e.preventDefault();
     
     const entry: PayrollEntry = {
+      salary: formData.salary,
       employee_id: employee.id,
       employee_name: employee.full_name,
       month: currentMonth,

@@ -14,11 +14,13 @@ class EmployeeService {
     };
 
     setPendingPayroll = async ({ employee, entry}: {employee: IEmployee, entry: PayrollEntry }): Promise<{ id: string	 }> => {
+        
         const { data } = await api.post<{ id: string }>('payroll-entry/generate', {
             employee_id: employee.id,
             discount: entry.discount,
             commission: entry.commission,
-            notes: entry.observations
+            notes: entry.observations,
+            salary: entry.salary
         });
 
         return data;
