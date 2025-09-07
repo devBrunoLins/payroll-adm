@@ -259,7 +259,7 @@ const Dashboard = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <Users className="h-8 w-8 text-primary" />
-              <h1 className="text-xl font-semibold">Sistema de Gestão de Funcionários</h1>
+              <h1 className="text-xl font-semibold">Sistema de Gestão de Folha de Pagamento</h1>
             </div>
             <Button variant="ghost" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />

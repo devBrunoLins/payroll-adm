@@ -38,7 +38,7 @@ const Login = () => {
         setIsLoading(false);
         toast({
           title: "Login realizado com sucesso!",
-          description: "Bem-vindo ao sistema de gestão de funcionários."
+          description: "Bem-vindo ao sistema de gestão de folha de pagamento."
         });
         localStorage.setItem("@Payroll:Token", access_token);
         navigate("/dashboard");
@@ -48,27 +48,6 @@ const Login = () => {
         return handleGenericErrorResponse(err);
       }
     });
-    
-
-    // Simulação de login - substitua com autenticação real via Supabase
-    // setTimeout(() => {
-    //   if (email && password) {
-    //     toast({
-    //       title: "Login realizado com sucesso!",
-    //       description: "Bem-vindo ao sistema de gestão de funcionários.",
-    //     });
-    //     // Armazenar temporariamente o estado de login
-    //     localStorage.setItem("isAuthenticated", "true");
-    //     navigate("/dashboard");
-    //   } else {
-    //     toast({
-    //       title: "Erro no login",
-    //       description: "Por favor, preencha todos os campos.",
-    //       variant: "destructive",
-    //     });
-    //   }
-    //   setIsLoading(false);
-    // }, 1000);
   };
 
   return (
