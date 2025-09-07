@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Plus, Search, Download, Users, Wallet, ClipboardCheck, FileText, Calendar } from "lucide-react";
+import { LogOut, Plus, Search, Download, Users, Wallet, ClipboardCheck, FileText, Calendar, CheckCircle, ArrowRight, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import EmployeeFormModal from "@/components/EmployeeFormModal";
 import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
@@ -314,6 +314,46 @@ const Dashboard = () => {
           </Card> */}
         </div>
 
+        {/* Alert quando todos funcionários estão preenchidos */}
+        {availableEmployees?.length === 0 && employees?.length > 0 && (
+          <Card className="mb-8 border-2 border-green-500 bg-gradient-to-r from-green-50 to-emerald-50 shadow-lg animate-pulse">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0">
+                    <div className="relative">
+                      <CheckCircle className="h-12 w-12 text-green-600" />
+                      <Sparkles className="h-6 w-6 text-yellow-500 absolute -top-1 -right-1 animate-bounce" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-green-800 mb-1">
+                      🎉 Folha de Pagamento Completa!
+                    </h3>
+                    <p className="text-green-700 text-lg">
+                      Todos os <strong>{employees?.length} funcionários</strong> já foram preenchidos para <strong>{currentMonth}/{currentYear}</strong>
+                    </p>
+                    <p className="text-green-600 text-sm mt-1">
+                      Agora você pode finalizar e enviar a folha de pagamento.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  <Button 
+                    size="lg" 
+                    className="bg-green-600 hover:bg-green-700 text-white shadow-lg transform hover:scale-105 transition-all duration-200"
+                    onClick={() => setIsSummaryModalOpen(true)}
+                  >
+                    <FileText className="h-5 w-5 mr-2" />
+                    Enviar Folha Agora
+                    <ArrowRight className="h-5 w-5 ml-2 animate-pulse" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Table Card */}
         <Card>
           <CardHeader>
@@ -333,15 +373,15 @@ const Dashboard = () => {
                 </CardDescription>
               </div>
               <div className="flex gap-2 w-full sm:w-auto">
-                <Button variant="gradient" onClick={handleAddEmployee}>
+                <Button variant="outline" onClick={handleAddEmployee}>
                   <Plus className="h-4 w-4 mr-2" />
                   Adicionar
                 </Button>
-                <Button variant="outline" onClick={exportToCSV}>
+                <Button variant="outline" disabled={payrollEntries.length === 0} onClick={exportToCSV}>
                   <Download className="h-4 w-4 mr-2" />
                   Exportar
                 </Button>
-                <Button variant="outline" onClick={() => setIsSummaryModalOpen(true)}>
+                <Button disabled={payrollEntries.length === 0} variant="gradient" onClick={() => setIsSummaryModalOpen(true)}>
                   <FileText className="h-4 w-4 mr-2" />
                   Enviar Folha ({payrollEntries.length})
                 </Button>
@@ -374,8 +414,12 @@ const Dashboard = () => {
                 <TableBody>
                   {filteredEmployees?.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground">
-                      ✅ Todos os funcionários já foram preenchidos para este mês. Clique em 'Enviar Folha' para finalizar.
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                        <div className="flex flex-col items-center space-y-2">
+                          <CheckCircle className="h-8 w-8 text-green-500" />
+                          <p className="text-lg font-medium text-green-700">Nenhum funcionário pendente</p>
+                          <p className="text-sm text-gray-500">Todos já foram processados para este período</p>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -463,7 +507,10 @@ const Dashboard = () => {
 
       <PayrollSummaryModal
         isOpen={isSummaryModalOpen}
-        onClose={() => setIsSummaryModalOpen(false)}
+        onClose={() => {
+          setIsSummaryModalOpen(false);
+          setPayrollEntries([]);
+        }}
         entries={payrollEntries}
         currentMonth={currentMonth}
         currentYear={currentYear}

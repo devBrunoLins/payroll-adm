@@ -155,7 +155,7 @@ const PayrollEntryModal = ({ isOpen, onClose, onSave, employee, currentMonth, cu
             <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
             </Button>
-            <Button type="submit" variant="gradient">
+            <Button disabled={!formData.salary || !formData.discount || !formData.commission} type="submit" variant="gradient">
               Salvar Folha
             </Button>
           </DialogFooter>
