@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Plus, Search, Download, Users, Wallet, ClipboardCheck, FileText } from "lucide-react";
+import { LogOut, Plus, Search, Download, Users, Wallet, ClipboardCheck, FileText, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import EmployeeFormModal from "@/components/EmployeeFormModal";
 import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
@@ -60,14 +60,20 @@ const Dashboard = () => {
   const currentYear = now.getFullYear();
 
   const queryClient = useQueryClient()
+  
 
   const {
     data: employees,
   } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => employeeService.getAll(),
+    queryFn: () => employeeService.getPendingPayroll(),
     enabled: true,
   });
+
+  const employeesWithPayrollFilled = payrollEntries.map(entry => entry.employee_id);
+  const availableEmployees = employees?.filter(employee => 
+    !employeesWithPayrollFilled.includes(employee.id)
+  );
 
   const { mutateAsync: create } = useMutation({
     mutationFn: (payload: IEmployee) => employeeService.create(payload),
@@ -81,6 +87,10 @@ const Dashboard = () => {
     mutationFn: (payload: IEmployee) => employeeService.delete(payload),
   });
 
+  const { mutateAsync: setPendingPayroll } = useMutation({
+    mutationFn: (data: {employee: IEmployee, entry: PayrollEntry }) => employeeService.setPendingPayroll(data),
+  });
+
   useEffect(() => {
     // Verificar autenticação
     const isAuthenticated = localStorage.getItem("@Payroll:Token");
@@ -90,7 +100,7 @@ const Dashboard = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("@Payroll:Token");
     toast({
       title: "Logout realizado",
       description: "Você foi desconectado do sistema.",
@@ -206,10 +216,23 @@ const Dashboard = () => {
 
   const handleSavePayrollEntry = (entry: PayrollEntry) => {
     // Remove existing entry for this employee if any
-    const filteredEntries = payrollEntries.filter(e => e.employeeId !== entry.employeeId);
-    setPayrollEntries([...filteredEntries, entry]);
-    setIsPayrollEntryModalOpen(false);
-    setSelectedEmployeeForPayroll(null);
+
+    setPendingPayroll({ employee: selectedEmployeeForPayroll, entry }, {
+      onSuccess: async () => {
+        setPayrollEntries([...payrollEntries, entry]);
+        setIsPayrollEntryModalOpen(false);
+        setSelectedEmployeeForPayroll(null);
+        toast({
+          title: "Folha preenchida",
+          description: `Folha de ${entry.month}/${entry.year} preenchida para ${entry.employee_name}`,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ['employees'],
+          refetchType: 'active'
+        })
+      },
+      onError: handleGenericErrorResponse
+    });
   };
 
   const filteredEmployees = employees?.filter(employee =>
@@ -296,8 +319,18 @@ const Dashboard = () => {
           <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <CardTitle>Funcionários</CardTitle>
-                <CardDescription>Gerencie os funcionários da sua empresa</CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                  Folha de Pagamento
+                  <Badge variant="outline" className="ml-2">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    {currentMonth}/{currentYear}
+                  </Badge>
+                </CardTitle>
+                <CardDescription>
+                  {availableEmployees?.length === 0 
+                    ? "Todos os funcionários já foram preenchidos para este mês" 
+                    : `${availableEmployees?.length} funcionário(s) pendente(s) para preencher`}
+                </CardDescription>
               </div>
               <div className="flex gap-2 w-full sm:w-auto">
                 <Button variant="gradient" onClick={handleAddEmployee}>
@@ -342,7 +375,7 @@ const Dashboard = () => {
                   {filteredEmployees?.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center text-muted-foreground">
-                        Nenhum funcionário encontrado
+                      ✅ Todos os funcionários já foram preenchidos para este mês. Clique em 'Enviar Folha' para finalizar.
                       </TableCell>
                     </TableRow>
                   ) : (

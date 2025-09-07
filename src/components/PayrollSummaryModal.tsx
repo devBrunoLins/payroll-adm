@@ -35,8 +35,8 @@ const PayrollSummaryModal = ({ isOpen, onClose, entries, currentMonth, currentYe
       month: currentMonth,
       year: currentYear,
       entries: entries.map(entry => ({
-        employeeId: entry.employeeId,
-        employeeName: entry.employeeName,
+        employee_id: entry.employee_id,
+        employee_name: entry.employee_name,
         salary: entry.salary,
         discount: entry.discount,
         commission: entry.commission,
@@ -132,11 +132,11 @@ const PayrollSummaryModal = ({ isOpen, onClose, entries, currentMonth, currentYe
               {entries.map((entry, index) => {
                 const netSalary = entry.salary - entry.discount + entry.commission;
                 return (
-                  <Card key={entry.employeeId}>
+                  <Card key={entry.employee_id}>
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start">
                         <div className="space-y-2">
-                          <div className="font-medium text-lg">{entry.employeeName}</div>
+                          <div className="font-medium text-lg">{entry.employee_name}</div>
                           <div className="grid grid-cols-4 gap-4 text-sm">
                             <div className="flex items-center gap-1">
                               <DollarSign className="h-3 w-3 text-muted-foreground" />

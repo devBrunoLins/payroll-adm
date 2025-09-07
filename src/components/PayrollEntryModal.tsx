@@ -9,8 +9,8 @@ import { DollarSign } from "lucide-react";
 import { IEmployee } from "@/types/employee";
 
 export interface PayrollEntry {
-  employeeId: string;
-  employeeName: string;
+  employee_id: string;
+  employee_name: string;
   month: string;
   year: number;
   salary: number;
@@ -31,7 +31,7 @@ interface PayrollEntryModalProps {
 
 const PayrollEntryModal = ({ isOpen, onClose, onSave, employee, currentMonth, currentYear }: PayrollEntryModalProps) => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState<Omit<PayrollEntry, 'employeeId' | 'employeeName' | 'month' | 'year'>>({
+  const [formData, setFormData] = useState<Omit<PayrollEntry, 'employee_id' | 'employee_name' | 'month' | 'year'>>({
     salary: employee.salary,
     discount: employee.discount,
     commission: employee.commission,
@@ -53,8 +53,8 @@ const PayrollEntryModal = ({ isOpen, onClose, onSave, employee, currentMonth, cu
     e.preventDefault();
     
     const entry: PayrollEntry = {
-      employeeId: employee.id,
-      employeeName: employee.full_name,
+      employee_id: employee.id,
+      employee_name: employee.full_name,
       month: currentMonth,
       year: currentYear,
       ...formData,
