@@ -37,6 +37,7 @@ const PayrollEntryModal = ({ isOpen, onClose, onSave, employee, currentMonth, cu
     discount: employee.discount,
     commission: employee.commission,
     observations: "",
+    net_salary: employee.salary - employee.discount + employee.commission,
   });
 
   useEffect(() => {
@@ -46,6 +47,7 @@ const PayrollEntryModal = ({ isOpen, onClose, onSave, employee, currentMonth, cu
         discount: employee.discount,
         commission: employee.commission,
         observations: "",
+        net_salary: employee.salary - employee.discount + employee.commission,
       });
     }
   }, [employee]);
