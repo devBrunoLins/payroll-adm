@@ -4,53 +4,42 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IEmployee } from "@/types/employee";
+import { ICompany } from "@/types/company";
 
 interface EmployeeFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (employee: IEmployee) => void;
-  employee: IEmployee | null;
+  onSave: (company: ICompany) => void;
+  company: ICompany | null;
 }
 
-const employeeDefault: IEmployee = {
+const companyDefault: ICompany = {
   id: "",
-  full_name: "",
-  salary: 0,
-  discount: 0,
-  commission: 0,
-  cpf: "",
-  company: {
-    id: "",
-    name: "",
-    slug: "",
-    cnpj: "",
-    created_at: new Date(),
-    updated_at: new Date(),
-    deleted_at: new Date(),
-  },
-  company_id: "",
+  name: "",
+  slug: "",
+  cnpj: "",
   created_at: new Date(),
   updated_at: new Date(),
   deleted_at: new Date(),
 }
 
-const EmployeeFormModal = ({ isOpen, onClose, onSave, employee }: EmployeeFormModalProps) => {
-  const [formData, setFormData] = useState<IEmployee>(employeeDefault);
+const EmployeeFormModal = ({ isOpen, onClose, onSave, company }: EmployeeFormModalProps) => {
+  const [formData, setFormData] = useState<ICompany>(companyDefault);
 
   useEffect(() => {
-    if (employee) {
-      setFormData(employee);
+    if (company) {
+      setFormData(company);
     } else {
-      setFormData(employeeDefault);
+      setFormData(companyDefault);
     }
-  }, [employee]);
+  }, [company]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
   };
 
-  const handleChange = (field: keyof IEmployee, value: string | number) => {
+  const handleChange = (field: keyof ICompany, value: string | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
@@ -62,10 +51,10 @@ const EmployeeFormModal = ({ isOpen, onClose, onSave, employee }: EmployeeFormMo
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {employee ? "Editar Funcionário" : "Adicionar Funcionário"}
+            {company ? "Editar Funcionário" : "Adicionar Funcionário"}
           </DialogTitle>
           <DialogDescription>
-            {employee 
+            {company 
               ? "Atualize as informações do funcionário"
               : "Preencha as informações do novo funcionário"}
           </DialogDescription>
@@ -78,21 +67,21 @@ const EmployeeFormModal = ({ isOpen, onClose, onSave, employee }: EmployeeFormMo
               </Label>
               <Input
                 id="name"
-                value={formData.full_name}
-                onChange={(e) => handleChange("full_name", e.target.value)}
+                value={formData.name}
+                onChange={(e) => handleChange("name", e.target.value)}
                 className="col-span-3"
                 required
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="salary" className="text-right">
-                Salário (R$)
+              <Label htmlFor="cnpj" className="text-right">
+                CNPJ
               </Label>
               <Input
-                id="salary"
-                type="number"
-                value={formData.salary || ""}
-                onChange={(e) => handleChange("salary", e.target.value)}
+                id="cnpj"
+                type="text"
+                value={formData.cnpj || ""}
+                onChange={(e) => handleChange("cnpj", e.target.value)}
                 className="col-span-3"
                 min="0"
                 step="0.01"
@@ -100,70 +89,27 @@ const EmployeeFormModal = ({ isOpen, onClose, onSave, employee }: EmployeeFormMo
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="cpf" className="text-right">
-                CPF
+              <Label htmlFor="slug" className="text-right">
+                Slug
               </Label>
               <Input
-                id="cpf"
+                id="slug"
                 type="text"
-                value={formData.cpf || ""}
-                onChange={(e) => handleChange("cpf", e.target.value)}
+                value={formData.slug || ""}
+                onChange={(e) => handleChange("slug", e.target.value)}
                 className="col-span-3"
                 min="0"
                 step="1"
                 required
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="admission_date" className="text-right">
-                Data de Admissão
-              </Label>
-              <Input
-                id="admission_date"
-                type="date"
-                value={formData.admission_date || ""}
-                onChange={(e) => handleChange("admission_date", e.target.value)}
-                className="col-span-3"
-                required
-              />
-            </div>
-            {/* <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="discount" className="text-right">
-                Desconto (R$)
-              </Label>
-              <Input
-                id="discount"
-                type="number"
-                value={formData.discount || ""}
-                onChange={(e) => handleChange("discount", e.target.value)}
-                className="col-span-3"
-                min="0"
-                step="0.01"
-                required
-              />
-            </div> */}
-            {/* <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="commission" className="text-right">
-                Comissão (R$)
-              </Label>
-              <Input
-                id="commission"
-                type="number"
-                value={formData.commission || ""}
-                onChange={(e) => handleChange("commission", e.target.value)}
-                className="col-span-3"
-                min="0"
-                step="0.01"
-                required
-              />
-            </div> */}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
             </Button>
             <Button type="submit" variant="gradient">
-              {employee ? "Salvar" : "Adicionar"}
+              {company ? "Salvar" : "Adicionar"}
             </Button>
           </DialogFooter>
         </form>

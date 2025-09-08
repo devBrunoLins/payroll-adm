@@ -15,7 +15,7 @@ api.interceptors.response.use(
 
     // 401 vem aqui, não no success
     if (status === 401) {
-      localStorage.removeItem('@Payroll:Token')
+      localStorage.removeItem('@Payroll:Company:Token')
       if (window.location.pathname !== '/') window.location.assign('/')
     }
 
@@ -28,7 +28,7 @@ api.interceptors.response.use(
 
 api.interceptors.request.use(
   async (config) => {
-    const accessToken = localStorage.getItem('@Payroll:Token');
+    const accessToken = localStorage.getItem('@Payroll:Company:Token');
     if (accessToken) {
 
       config.headers["Authorization"] = `Bearer ${accessToken}`;

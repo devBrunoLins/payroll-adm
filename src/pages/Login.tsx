@@ -20,7 +20,7 @@ const Login = () => {
 
   useEffect(() => {
     // Verificar autenticação
-    const isAuthenticated = localStorage.getItem("@Payroll:Token");
+    const isAuthenticated = localStorage.getItem("@Payroll:Company:Token");
     if (isAuthenticated) {
       navigate("/dashboard");
     }
@@ -38,9 +38,9 @@ const Login = () => {
         setIsLoading(false);
         toast({
           title: "Login realizado com sucesso!",
-          description: "Bem-vindo ao sistema de gestão de folha de pagamento."
+          description: "Bem-vindo ao sistema de gestão de empresas."
         });
-        localStorage.setItem("@Payroll:Token", access_token);
+        localStorage.setItem("@Payroll:Company:Token", access_token);
         navigate("/dashboard");
       },
       onError: (err: unknown) => {
