@@ -6,6 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FileText, DollarSign, TrendingDown, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { PayrollEntry } from "@/components/PayrollEntryModal";
+import handleGenericErrorResponse from "@/common/utils/handleGenericErrorResponse";
+import { useMutation } from "@tanstack/react-query";
+import { employeeService } from "@/services/employee.service";
+import { IPayrollData } from "@/types/payroll";
 
 interface PayrollSummaryModalProps {
   isOpen: boolean;
@@ -17,6 +21,10 @@ interface PayrollSummaryModalProps {
 
 const PayrollSummaryModal = ({ isOpen, onClose, entries, currentMonth, currentYear }: PayrollSummaryModalProps) => {
   const { toast } = useToast();
+
+  const { mutateAsync: sendPayroll } = useMutation({
+    mutationFn: (payload: IPayrollData) => employeeService.sendPayroll(payload),
+  });
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -31,7 +39,7 @@ const PayrollSummaryModal = ({ isOpen, onClose, entries, currentMonth, currentYe
   const totalNet = totalSalaries - totalDiscounts + totalCommissions;
 
   const handleConfirm = () => {
-    const payrollData = {
+    const payrollData: IPayrollData = {
       month: currentMonth,
       year: currentYear,
       entries: entries.map(entry => ({
@@ -49,20 +57,19 @@ const PayrollSummaryModal = ({ isOpen, onClose, entries, currentMonth, currentYe
         totalDiscounts,
         totalCommissions,
         totalNet,
-      },
-      createdAt: new Date().toISOString(),
+      }
     };
 
-    console.log("===== FOLHA DE PAGAMENTO FINALIZADA =====");
-    console.log(payrollData);
-    console.log("==========================================");
-
-    toast({
-      title: "Folha enviada com sucesso!",
-      description: `Folha de ${currentMonth}/${currentYear} processada para ${entries.length} funcionário(s)`,
+    sendPayroll(payrollData, {
+      onSuccess: () => {
+        onClose();
+        toast({
+          title: "Folha enviada com sucesso!",
+          description: `Folha de ${currentMonth}/${currentYear} processada para ${entries.length} funcionário(s)`,
+        });
+      },
+      onError: handleGenericErrorResponse
     });
-    
-    onClose();
   };
 
   if (entries.length === 0) {

@@ -1,6 +1,7 @@
 import api from "@/api";
 import { PayrollEntry } from "@/components/PayrollEntryModal";
 import { IEmployee } from "@/types/employee";
+import { IPayrollData } from "@/types/payroll";
 
 class EmployeeService {
     getAll = async (): Promise<IEmployee[]> => {
@@ -21,6 +22,17 @@ class EmployeeService {
             commission: entry.commission,
             notes: entry.observations,
             salary: entry.salary
+        });
+
+        return data;
+    };
+    
+    sendPayroll = async (payroll: IPayrollData): Promise<{ id: string	 }> => {
+        const { data } = await api.post<{ id: string }>('payroll-entry/send', {
+            month: new Date().getMonth() + 1,
+            year: new Date().getFullYear(),
+            entries: payroll.entries,
+            summary: payroll.summary
         });
 
         return data;

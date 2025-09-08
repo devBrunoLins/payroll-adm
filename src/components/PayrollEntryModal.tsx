@@ -11,11 +11,12 @@ import { IEmployee } from "@/types/employee";
 export interface PayrollEntry {
   employee_id: string;
   employee_name: string;
-  month: string;
-  year: number;
   salary: number;
   discount: number;
   commission: number;
+  month: string;
+  net_salary: number;
+  year: number;
   observations: string;
 }
 

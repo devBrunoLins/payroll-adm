@@ -360,7 +360,7 @@ const Dashboard = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  Folha de Pagamento
+                  Funcionários Pendentes
                   <Badge variant="outline" className="ml-2">
                     <Calendar className="h-3 w-3 mr-1" />
                     {currentMonth}/{currentYear}
@@ -403,10 +403,7 @@ const Dashboard = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome</TableHead>
-                    <TableHead>Salário</TableHead>
-                    <TableHead>Desconto</TableHead>
-                    <TableHead>Comissão</TableHead>
-                    <TableHead>Salário Líquido</TableHead>
+                    <TableHead>Salário Base</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -426,17 +423,6 @@ const Dashboard = () => {
                     filteredEmployees?.map((employee) => (
                       <TableRow key={employee.id}>
                         <TableCell className="font-medium">{employee.full_name}</TableCell>
-                        <TableCell>{formatCurrency(employee.salary)}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="text-destructive">
-                            0
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="text-secondary">
-                            0
-                          </Badge>
-                        </TableCell>
                         <TableCell className="font-semibold text-primary">
                           {formatCurrency(+employee.salary)}
                         </TableCell>
