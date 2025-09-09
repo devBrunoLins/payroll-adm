@@ -11,13 +11,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { companyService } from "@/services/company.service";
 import handleGenericErrorResponse from "@/common/utils/handleGenericErrorResponse";
 import { ICompany } from "@/types/company";
+import CompanyFormModal from "@/components/CompanyFormModal";
+import EmployeeListModal from "@/components/EmployeeListModal";
 import EmployeeFormModal from "@/components/EmployeeFormModal";
+import { IEmployee } from "@/types/employee";
+import { employeeService } from "@/services/employee.service";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<ICompany | null>(null);
   const [companyToDelete, setCompanyToDelete] = useState<ICompany | null>(null);
@@ -36,6 +41,10 @@ const Dashboard = () => {
 
   const { mutateAsync: create } = useMutation({
     mutationFn: (payload: ICompany) => companyService.create(payload),
+  });
+
+  const { mutateAsync: createEmployee } = useMutation({
+    mutationFn: (payload: IEmployee) => employeeService.create(payload),
   });
 
   const { mutateAsync: edit } = useMutation({
@@ -63,6 +72,32 @@ const Dashboard = () => {
     navigate("/");
   };
 
+  const handleSaveEmployee = (employee: IEmployee) => {
+    createEmployee({
+      full_name: employee.full_name,
+      salary: employee.salary,
+      cpf: employee.cpf,
+      company_id: employee.company_id, // Usar o company_id do formulário
+      admission_date: employee.admission_date,
+      discount: employee.discount || 0,
+      commission: employee.commission || 0,
+    }, {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ['employees'],
+          refetchType: 'active'
+        });
+        toast({
+          title: "Funcionário criado",
+          description: `${employee.full_name} foi incluído com sucesso.`,
+        });
+      },
+      onError: handleGenericErrorResponse
+    });
+    
+    setIsEmployeeModalOpen(false);
+  };
+
   const handleAddCompany = () => {
     setSelectedCompany(null);
     setIsModalOpen(true);
@@ -71,6 +106,11 @@ const Dashboard = () => {
   const handleEditCompany = (company: ICompany) => {
     setSelectedCompany(company);
     setIsModalOpen(true);
+  };
+
+  const handleAddEmployee = (company: ICompany) => {
+    setSelectedCompany(company);
+    setIsEmployeeModalOpen(true);
   };
 
   const handleDeleteCompany = (company: ICompany) => {
@@ -138,6 +178,7 @@ const Dashboard = () => {
   };
 
   const handleViewEmployees = (company: ICompany) => {
+    setSelectedCompany(company);
     setIsEmployeesModalOpen(true);
   };
 
@@ -301,6 +342,13 @@ const Dashboard = () => {
                               Editar
                             </Button>
                             <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleAddEmployee(company)}
+                            >
+                              Adicionar funcionário
+                            </Button>
+                            <Button
                               variant="destructive"
                               size="sm"
                               onClick={() => handleDeleteCompany(company)}
@@ -319,7 +367,7 @@ const Dashboard = () => {
         </Card>
       </main>
 
-      <EmployeeFormModal
+      <CompanyFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveCompany}
@@ -331,6 +379,19 @@ const Dashboard = () => {
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
         companyName={companyToDelete?.name || ""}
+      />
+
+      <EmployeeFormModal
+        isOpen={isEmployeeModalOpen}
+        onClose={() => setIsEmployeeModalOpen(false)}
+        onSave={handleSaveEmployee}
+        company={selectedCompany}
+      />
+
+      <EmployeeListModal
+        isOpen={isEmployeesModalOpen}
+        onClose={() => setIsEmployeesModalOpen(false)}
+        company={selectedCompany}
       />
     </div>
   );

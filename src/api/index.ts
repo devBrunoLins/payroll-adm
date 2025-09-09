@@ -6,7 +6,6 @@ export const api = axios.create({ baseURL });
 
 api.interceptors.response.use(
   (res) => {
-    console.log('[API OK]', res.config.method?.toUpperCase(), res.status, res.config.url)
     return res
   },
   (err) => {
@@ -18,9 +17,6 @@ api.interceptors.response.use(
       localStorage.removeItem('@Payroll:Company:Token')
       if (window.location.pathname !== '/') window.location.assign('/')
     }
-
-    // CORS/network errors não têm response:
-    // err.response === undefined → trate se precisar
 
     return Promise.reject(err)
   }

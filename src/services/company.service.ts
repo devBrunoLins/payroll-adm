@@ -1,9 +1,15 @@
 import api from "@/api";
 import { ICompany } from "@/types/company";
+import { IEmployee } from "@/types/employee";
 
 class CompanyService {
     getAll = async (): Promise<ICompany[]> => {
         const { data } = await api.get<ICompany[]>('company');
+        return data;
+    };
+
+    getEmployeesByCompany = async (company_id: string): Promise<IEmployee[]> => {
+        const { data } = await api.get<IEmployee[]>(`company/employees/${company_id}`);
         return data;
     };
 
