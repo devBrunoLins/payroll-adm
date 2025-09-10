@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { LogOut, Plus, Search, Users, Wallet, ClipboardCheck, CheckCircle, Sparkles, Building2 } from "lucide-react";
+import { LogOut, Plus, Search, Users, CheckCircle, Sparkles, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -54,14 +54,6 @@ const Dashboard = () => {
   const { mutateAsync: deleteCompany } = useMutation({
     mutationFn: (payload: ICompany) => companyService.delete(payload),
   });
-
-  useEffect(() => {
-    // Verificar autenticação
-    const isAuthenticated = localStorage.getItem("@Payroll:Company:Token");
-    if (!isAuthenticated) {
-      navigate("/");
-    }
-  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("@Payroll:Company:Token");
