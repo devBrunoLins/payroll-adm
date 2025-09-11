@@ -13,6 +13,7 @@ import handleGenericErrorResponse from "@/common/utils/handleGenericErrorRespons
 import { ICompany } from "@/types/company";
 import CompanyFormModal from "@/components/CompanyFormModal";
 import EmployeeListModal from "@/components/EmployeeListModal";
+import UsersListModal from "@/components/UsersListModal";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const Dashboard = () => {
   const [selectedCompany, setSelectedCompany] = useState<ICompany | null>(null);
   const [companyToDelete, setCompanyToDelete] = useState<ICompany | null>(null);
   const [isEmployeesModalOpen, setIsEmployeesModalOpen] = useState(false);
+  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
 
   const queryClient = useQueryClient()
   
@@ -133,6 +135,11 @@ const Dashboard = () => {
   const handleViewEmployees = (company: ICompany) => {
     setSelectedCompany(company);
     setIsEmployeesModalOpen(true);
+  };
+
+  const handleViewUsers = (company: ICompany) => {
+    setSelectedCompany(company);
+    setIsUsersModalOpen(true);
   };
 
   const filteredCompanies = companies?.filter(company =>
@@ -288,6 +295,14 @@ const Dashboard = () => {
                               Ver funcionários
                             </Button>
                             <Button
+                              variant="gradient"
+                              size="sm"
+                              onClick={() => handleViewUsers(company)}
+                            >
+                              <Users className="h-4 w-4 mr-1" />
+                              Ver usuários
+                            </Button>
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleEditCompany(company)}
@@ -330,6 +345,12 @@ const Dashboard = () => {
       <EmployeeListModal
         isOpen={isEmployeesModalOpen}
         onClose={() => setIsEmployeesModalOpen(false)}
+        company={selectedCompany}
+      />
+
+      <UsersListModal
+        isOpen={isUsersModalOpen}
+        onClose={() => setIsUsersModalOpen(false)}
         company={selectedCompany}
       />
     </div>
